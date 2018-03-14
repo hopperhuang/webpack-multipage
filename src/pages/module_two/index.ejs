@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="no">
+    <meta name="format-detection" content="telephone=no">
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, no-store, must-revalidate">
+    <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1999 08:21:57 GMT">
+    <meta HTTP-EQUIV="expires" CONTENT="0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <% for (item of htmlWebpackPlugin.options.links) { %>
+        <% if (typeof item === 'string' || item instanceof String) { item = { href: item, rel: 'stylesheet' } } %>
+          <link<% for (key in item) { %> <%= key %>="<%= item[key] %>"<% } %>>
+        <% } %>
+        <% for (item of htmlWebpackPlugin.options.scripts) { %>
+            <% if (typeof item === 'string' || item instanceof String) { item = { src: item, type: 'text/javascript' } } %>
+              <script<% for (key in item) { %> <%= key %>="<%= item[key] %>"<% } %>></script>
+            <% } %>
+    <link rel="shortcut icon" href="#" />
+</head>
+
+<body>
+    <div class="module_two_container" >
+        这是第二个静态页面
+        <img src="${ require('../../assets/panghu.jpg') }">
+    </div>
+</body>
+<script scr="./module_two.js" ></script>
+</html>
