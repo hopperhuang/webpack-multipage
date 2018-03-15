@@ -3,6 +3,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
+const webpack = require('webpack')
 
 module.exports = {
   entry: {
@@ -114,10 +115,22 @@ module.exports = {
         use: {
           loader: 'html-loader'
         }
-      }
+      },
+      { test: /\.ejs$/, loader: 'ejs-loader' }
     ]
   },
+  devtool: 'inline-source-map',
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 9000,
+    hot: true,
+    // 打开页面
+    openPage: '/module_one/index.html'
+  },
   plugins: [
+    new webpack.NamedModulesPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
       // favicon路径，通过webpack引入同时可以生成hash值

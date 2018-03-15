@@ -114,8 +114,12 @@ module.exports = {
         use: {
           loader: 'html-loader'
         }
-      }
+      },
+      { test: /\.ejs$/, loader: 'ejs-loader' }
     ]
+  },
+  externals: {
+    'jquery': '$'
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),

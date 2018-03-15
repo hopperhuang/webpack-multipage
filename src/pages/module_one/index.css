@@ -1,6 +1,6 @@
 .module_one_container {
     /* display: flex; */
-    width: 200px;
+    width: 100px;
     color: red;
     height: 200px;
 }
