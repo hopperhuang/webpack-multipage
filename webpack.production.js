@@ -3,6 +3,11 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
+// 创建多个实例
+const extractCSS = new ExtractTextPlugin('assets/css/[contenthash]-one.css')
+const extractLESS = new ExtractTextPlugin('assets/css/[contenthash]-two.css')
 
 module.exports = {
   entry: {
@@ -20,15 +25,8 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false,
-              importLoaders: 1
-            }
-          },
+        use: extractCSS.extract([
+          'css-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -51,21 +49,12 @@ module.exports = {
               ]
             }
           }
-        ]
+        ])
       },
       {
         test: /\.less$/,
-        use: [
-          {
-            loader: 'style-loader' // creates style nodes from JS strings
-          },
-          {
-            loader: 'css-loader', // translates CSS into CommonJS
-            options: {
-              modules: false,
-              importLoaders: 1
-            }
-          },
+        use: extractLESS.extract([
+          'css-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -88,9 +77,8 @@ module.exports = {
               ]
             }
           },
-          {
-            loader: 'less-loader' // compiles Less to CSS
-          }]
+          'less-loader'
+        ])
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -121,7 +109,10 @@ module.exports = {
   externals: {
     'jquery': '$'
   },
+  devtool: 'source-map',
   plugins: [
+    extractCSS,
+    extractLESS,
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
       // favicon路径，通过webpack引入同时可以生成hash值

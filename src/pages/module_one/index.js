@@ -4,7 +4,7 @@ import jq from 'jquery'
 // 引入我们需要的css
 import './index.css'
 
-// 引入ejs模板，html变动时，热更新网页,build打包发布时请删除，减少代码大小。
+// 引入ejs模板，html变动时，热更新网页,开发完成后，build打包发布时请删除，减少代码大小。
 require('./index.ejs')
 
 function component () {
