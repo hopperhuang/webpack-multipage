@@ -4,13 +4,36 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
 const webpack = require('webpack')
+const getFiles = require('./getFile')
+
+const files = getFiles()
+const fileEntrys = {}
+const _plugin = []
+files.forEach(function (file) {
+  // 处理入口
+  fileEntrys[file[0]] = file[1]
+  // 处理html模板
+  _plugin.push(new HtmlWebpackPlugin({ // html webpack plugin 配置
+    filename: `./${file[0]}/index.html`, // 生成的html存放路径，相对于path
+    // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
+    template: `./src/pages/${file[0]}/index.ejs`,
+    inject: 'body', // js插入的位置，true/'head'/'body'/false
+    hash: false, // 为静态资源生成hash值
+    chunks: [file[0], 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
+    links: [
+      // 加入reset.css
+      'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
+    ]
+  }))
+})
+const entry = { flex: './src/assets/flex.js', ...fileEntrys }
+const plugins = [new webpack.NamedModulesPlugin(),
+  new webpack.HotModuleReplacementPlugin(),
+  new CleanWebpackPlugin(['dist']),
+  new CleanWebpackPlugin(['dist']), ..._plugin]
 
 module.exports = {
-  entry: {
-    module_one: './src/pages/module_one/index.js',
-    module_two: './src/pages/module_two/index.js',
-    flex: './src/assets/flex.js'
-  },
+  entry,
   output: {
     filename: 'assets/js/[name].js',
     path: path.resolve(__dirname, 'dist'),
@@ -128,39 +151,5 @@ module.exports = {
     // 打开页面
     openPage: '/module_one/index.html'
   },
-  plugins: [
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-    new CleanWebpackPlugin(['dist']),
-    new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
-      // favicon路径，通过webpack引入同时可以生成hash值
-      // favicon: './src/img/favicon.ico',
-      filename: './module_one/index.html', // 生成的html存放路径，相对于path
-      // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
-      template: './src/pages/module_one/index.ejs',
-      inject: 'body', // js插入的位置，true/'head'/'body'/false
-      hash: false, // 为静态资源生成hash值
-      chunks: ['module_one', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
-      title: 'm1',
-      links: [
-        // 加入reset.css
-        'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ]
-    }),
-    new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
-      // favicon路径，通过webpack引入同时可以生成hash值
-      // favicon: './src/img/favicon.ico',
-      filename: './module_two/index.html', // 生成的html存放路径，相对于path
-      // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_two/index.ejs'), // html模板路径
-      template: './src/pages/module_two/index.ejs',
-      inject: 'body', // js插入的位置，true/'head'/'body'/false
-      hash: false, // 为静态资源生成hash值
-      chunks: ['module_two', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
-      title: 'm2',
-      links: [
-        // 加入reset.css
-        'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ]
-    })
-  ]
+  plugins
 }

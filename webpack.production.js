@@ -5,22 +5,46 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const getFiles = require('./getFile')
 
 // 创建extract多个实例, 将抽离的文件放到assets/css目录下,contenthash命名，防止内容更新后，css文件却被304命中
 const extractCSS = new ExtractTextPlugin('assets/css/[contenthash]-one.css')
 const extractLESS = new ExtractTextPlugin('assets/css/[contenthash]-two.css')
 
+const files = getFiles()
+const fileEntrys = {}
+const _plugin = []
+files.forEach(function (file) {
+  // 处理入口
+  fileEntrys[file[0]] = file[1]
+  // 处理html模板
+  _plugin.push(new HtmlWebpackPlugin({ // html webpack plugin配置
+    filename: `./${file[0]}/index.html`, // 生成的html存放路径，相对于path
+    // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
+    template: `./src/pages/${file[0]}/index.ejs`,
+    inject: 'body', // js插入的位置，true/'head'/'body'/false
+    hash: false, // 为静态资源生成hash值
+    chunks: [file[0], 'manifest', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源, 一定要引入manifest
+    minify: { // 压缩HTML文件
+      removeComments: true, // 移除HTML中的注释
+      collapseWhitespace: false // 删除空白符与换行符
+    },
+    links: [
+      // 加入reset.css
+      'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
+    ]
+  }))
+})
+const entry = { flex: './src/assets/flex.js', ...fileEntrys }
+const plugins = [extractCSS, extractLESS, new webpack.HashedModuleIdsPlugin(), new CleanWebpackPlugin(['dist']), ..._plugin]
+
 module.exports = {
-  entry: {
-    module_one: './src/pages/module_one/index.js',
-    module_two: './src/pages/module_two/index.js',
-    flex: './src/assets/flex.js'
-  },
+  entry,
   output: {
     // 利用文件内容hash来做缓存
     filename: 'assets/js/[name].[chunkhash].js',
     path: path.resolve(__dirname, 'dist'),
-    // 打包上传时，这里应该填写cdn路径
+    // 打包上传时，这里应该填写cdn路径, 将文件上传到cdn/assets/文件夹下，否则不会起作用
     publicPath: '/'
   },
   module: {
@@ -119,48 +143,5 @@ module.exports = {
       name: 'manifest'
     }
   },
-  plugins: [
-    extractCSS,
-    extractLESS,
-    new webpack.HashedModuleIdsPlugin(),
-    new CleanWebpackPlugin(['dist']),
-    new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
-      // favicon路径，通过webpack引入同时可以生成hash值
-      // favicon: './src/img/favicon.ico',
-      filename: './module_one/index.html', // 生成的html存放路径，相对于path
-      // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
-      template: './src/pages/module_one/index.ejs',
-      inject: 'body', // js插入的位置，true/'head'/'body'/false
-      hash: false, // 为静态资源生成hash值
-      chunks: ['module_one', 'manifest', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
-      minify: { // 压缩HTML文件
-        removeComments: true, // 移除HTML中的注释
-        collapseWhitespace: false // 删除空白符与换行符
-      },
-      title: 'm1',
-      links: [
-        // 加入reset.css
-        'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ]
-    }),
-    new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
-      // favicon路径，通过webpack引入同时可以生成hash值
-      // favicon: './src/img/favicon.ico',
-      filename: './module_two/index.html', // 生成的html存放路径，相对于path
-      // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_two/index.ejs'), // html模板路径
-      template: './src/pages/module_two/index.ejs',
-      inject: 'body', // js插入的位置，true/'head'/'body'/false
-      hash: false, // 为静态资源生成hash值
-      chunks: ['module_two', 'manifest', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
-      minify: { // 压缩HTML文件
-        removeComments: true, // 移除HTML中的注释
-        collapseWhitespace: false // 删除空白符与换行符
-      },
-      title: 'm2',
-      links: [
-        // 加入reset.css
-        'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ]
-    })
-  ]
+  plugins
 }
