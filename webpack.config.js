@@ -140,17 +140,11 @@ module.exports = {
       template: './src/pages/module_one/index.ejs',
       inject: 'body', // js插入的位置，true/'head'/'body'/false
       hash: false, // 为静态资源生成hash值
-      chunks: ['module_one'], // 需要引入的chunk，不配置就会引入所有页面的资源
+      chunks: ['module_one', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
       title: 'm1',
       links: [
         // 加入reset.css
         'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ],
-      scripts: [
-        {
-          src: '/assets/js/flex.js',
-          type: 'text/javascript'
-        }
       ]
     }),
     new HtmlWebpackPlugin({ // 根据模板插入css/js等生成最终HTML
@@ -161,17 +155,11 @@ module.exports = {
       template: './src/pages/module_two/index.ejs',
       inject: 'body', // js插入的位置，true/'head'/'body'/false
       hash: false, // 为静态资源生成hash值
-      chunks: ['module_two'], // 需要引入的chunk，不配置就会引入所有页面的资源
+      chunks: ['module_two', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
       title: 'm2',
       links: [
         // 加入reset.css
         'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
-      ],
-      scripts: [
-        {
-          src: '/assets/js/flex.js',
-          type: 'text/javascript'
-        }
       ]
     })
   ]
