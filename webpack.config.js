@@ -5,6 +5,7 @@ const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
 const webpack = require('webpack')
 const getFiles = require('./getFile')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const files = getFiles()
 const fileEntrys = {}
@@ -15,22 +16,36 @@ files.forEach(function (file) {
   // 处理html模板
   _plugin.push(new HtmlWebpackPlugin({ // html webpack plugin 配置
     filename: `./${file[0]}/index.html`, // 生成的html存放路径，相对于path
-    // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
     template: `./src/pages/${file[0]}/index.ejs`,
     inject: 'body', // js插入的位置，true/'head'/'body'/false
     hash: false, // 为静态资源生成hash值
-    chunks: [file[0], 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源
+    chunks: [file[0]], // 需要引入的chunk，不配置就会引入所有页面的资源
     links: [
       // 加入reset.css
-      'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
+      '/assets/css/reset.css'
+    ],
+    scripts: [
+      // 引入flex
+      '/assets/js/flex.js'
     ]
   }))
 })
-const entry = { flex: './src/assets/flex.js', ...fileEntrys }
+const entry = { ...fileEntrys }
 const plugins = [new webpack.NamedModulesPlugin(),
   new webpack.HotModuleReplacementPlugin(),
   new CleanWebpackPlugin(['dist']),
-  new CleanWebpackPlugin(['dist']), ..._plugin]
+  new CopyWebpackPlugin([{
+    from: './src/assets/reset.css',
+    // 相对路径，相对于dist文件夹
+    to: './assets/css',
+    toType: 'dir'
+  }, {
+    from: './src/assets/flex.js',
+    // 相对路径，相对于dist文件夹
+    to: './assets/js',
+    toType: 'dir'
+  }]),
+  ..._plugin]
 
 module.exports = {
   entry,

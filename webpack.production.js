@@ -6,6 +6,7 @@ const autoprefixer = require('autoprefixer')
 const postcssPxtorem = require('postcss-pxtorem')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const getFiles = require('./getFile')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 // 创建extract多个实例, 将抽离的文件放到assets/css目录下,contenthash命名，防止内容更新后，css文件却被304命中
 const extractCSS = new ExtractTextPlugin('assets/css/[contenthash]-one.css')
@@ -20,23 +21,48 @@ files.forEach(function (file) {
   // 处理html模板
   _plugin.push(new HtmlWebpackPlugin({ // html webpack plugin配置
     filename: `./${file[0]}/index.html`, // 生成的html存放路径，相对于path
-    // template: 'html-withimg-loader!' + path.resolve(__dirname, 'src/pages/module_one/index.ejs'), // html模板路径
     template: `./src/pages/${file[0]}/index.ejs`,
     inject: 'body', // js插入的位置，true/'head'/'body'/false
     hash: false, // 为静态资源生成hash值
-    chunks: [file[0], 'manifest', 'flex'], // 需要引入的chunk，不配置就会引入所有页面的资源, 一定要引入manifest
+    chunks: [file[0], 'manifest'], // 需要引入的chunk，不配置就会引入所有页面的资源, 一定要引入manifest
     minify: { // 压缩HTML文件
       removeComments: true, // 移除HTML中的注释
       collapseWhitespace: false // 删除空白符与换行符
     },
     links: [
       // 加入reset.css
-      'https://cdn.bootcss.com/minireset.css/0.0.2/minireset.css'
+      '/assets/css/reset.css'
+    ],
+    scripts: [
+      // 引入flex 和 jquery
+      '/assets/js/flex.js',
+      '/assets/js/jquery.min.js'
     ]
   }))
 })
-const entry = { flex: './src/assets/flex.js', ...fileEntrys }
-const plugins = [extractCSS, extractLESS, new webpack.HashedModuleIdsPlugin(), new CleanWebpackPlugin(['dist']), ..._plugin]
+const entry = { ...fileEntrys }
+const plugins = [
+  extractCSS,
+  extractLESS,
+  new webpack.HashedModuleIdsPlugin(),
+  new CleanWebpackPlugin(['dist']),
+  new CopyWebpackPlugin([{ // 转移静态资源文件到特定的文件夹
+    from: './src/assets/reset.css',
+    // 相对路径，相对于dist文件夹
+    to: './assets/css',
+    toType: 'dir'
+  }, {
+    from: './src/assets/flex.js',
+    // 相对路径，相对于dist文件夹
+    to: './assets/js',
+    toType: 'dir'
+  }, {
+    from: './src/assets/jquery.min.js',
+    // 相对路径，相对于dist文件夹
+    to: './assets/js',
+    toType: 'dir'
+  }]),
+  ..._plugin]
 
 module.exports = {
   entry,
