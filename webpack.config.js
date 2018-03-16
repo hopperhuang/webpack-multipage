@@ -164,7 +164,7 @@ module.exports = {
     port: 9000,
     hot: true,
     // 打开页面
-    openPage: '/module_one/index.html'
+    openPage: 'module_one/index.html'
   },
   plugins
 }
